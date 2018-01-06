@@ -49,7 +49,8 @@ struct GDAXLimitOrder <: AbstractGDAXOrder
                             client_oid::String = "",
                             stp::String = "",
                             time_in_force::String = "",
-                            cancel_after::String = "")
+                            cancel_after::String = "",
+                            post_only::Bool = true)
         return new(side,
                     product_id,
                     lots,
@@ -59,7 +60,7 @@ struct GDAXLimitOrder <: AbstractGDAXOrder
                     stp,
                     time_in_force,
                     cancel_after,
-                    true)
+                    post_only)
     end
 
 end

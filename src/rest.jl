@@ -17,7 +17,11 @@ function getHeaders(this::GDAXUser,
 end
 
 function send_request(this::GDAXUser,
-                        method::String, request_path::String; query = Dict(), json = Dict())
+                        method::String,
+                        request_path::String;
+                        query = Dict(),
+                        json = Dict(),
+                        timeout = Dates.Second(1))
 
     query_str = Requests.format_query_str(query)
     query_str = "?" * query_str
@@ -30,6 +34,7 @@ function send_request(this::GDAXUser,
     return handle(this.rest_url * request_path,
                  query = query,
                  json = isempty(json) ? nothing : json,
+                 timeout = timeout,
                  headers = getHeaders(this, method, request_path * query_str, json))
 end
 
