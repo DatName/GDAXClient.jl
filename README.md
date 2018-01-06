@@ -1,6 +1,6 @@
 # GDAXClient.jl
 
-An [GDAX](https://www.gdax.com/) API client written in Julia. Implemets REST API and WebSocket feed handling (via [DandelionWebSockets.jl](https://github.com/dandeliondeathray/DandelionWebSockets.jl))
+[GDAX](https://www.gdax.com/) API client written in Julia. Implemets REST API and WebSocket feed handling (via [DandelionWebSockets.jl](https://github.com/dandeliondeathray/DandelionWebSockets.jl))
 
 ## Installation
 ```julia
