@@ -58,7 +58,7 @@ end
 
     h = GDAXWebSocketClient(ws_feed,
                             subscription,
-                            TestEventsHandler(1),
+                            TestEventsHandler(0),
                             user = user)
     connect(h)
     subscribe(h)

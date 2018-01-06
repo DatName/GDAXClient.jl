@@ -66,5 +66,6 @@ end
 
 include("rest.jl")
 include("websocket.jl")
+include("historical_data.jl")
 
 end
