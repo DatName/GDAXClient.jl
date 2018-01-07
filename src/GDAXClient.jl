@@ -41,7 +41,7 @@ struct GDAXLimitOrder <: AbstractGDAXOrder
                 #cb 	Cancel both
     time_in_force::String #[optional] GTC, GTT, IOC, or FOK (default is GTC)
     cancel_after::String #[optional min, hour, day (Requires time_in_force to be GTT)
-    post_only::Bool #[optional] Post only flag (Invalid when time_in_force is IOC or FOK)
+    post_only::Union{Void, Bool} #[optional] Post only flag (Invalid when time_in_force is IOC or FOK)
     function GDAXLimitOrder(side::String,
                             lots::String,
                             product_id::String,
@@ -50,7 +50,7 @@ struct GDAXLimitOrder <: AbstractGDAXOrder
                             stp::String = "",
                             time_in_force::String = "",
                             cancel_after::String = "",
-                            post_only::Bool = true)
+                            post_only::Union{Void, Bool} = true)
         return new(side,
                     product_id,
                     lots,

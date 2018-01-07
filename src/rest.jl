@@ -21,7 +21,7 @@ function send_request(this::GDAXUser,
                         request_path::String;
                         query = Dict(),
                         json = Dict(),
-                        timeout = Dates.Second(1))
+                        timeout = 1.0)
 
     query_str = Requests.format_query_str(query)
     query_str = "?" * query_str
@@ -111,7 +111,7 @@ function marshal(this::GDAXLimitOrder)::Dict{String, Any}
     !isempty(this.stp) && (out["stp"] => this.stp)
     !isempty(this.time_in_force) && (out["time_in_force"] = this.time_in_force)
     !isempty(this.cancel_after) && (out["cancel_after"] = this.cancel_after)
-    !isempty(this.post_only) && (out["post_only"] = this.post_only)
+    this.post_only ≠ nothing && (out["post_only"] = this.post_only)
     !isempty(this.client_oid) && (out["client_oid"] = this.client_oid)
     !isempty(this._type) && (out["type"] = this._type)
     !isempty(this.stp) && (out["stp"] = this.stp)

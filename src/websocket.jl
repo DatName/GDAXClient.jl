@@ -47,7 +47,15 @@ function onMessage(this::AbstractGDAXEventsHandler, msg::Dict{String, X}) where 
 end
 
 function on_text(this::T, str::String)::Void where {T <: AbstractGDAXEventsHandler}
-    msg = JSON.parse(str)
+
+    msg = try
+        JSON.parse(str)
+    catch exc
+        Dict("type" => "parse_error",
+             "text" => str,
+             "exception" => exc)
+    end
+
     onMessage(this, msg)
     return nothing
 end
