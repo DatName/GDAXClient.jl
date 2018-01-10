@@ -47,7 +47,7 @@ julia> subscription = Dict("type" => "subscribe",
                             "channels" => ["heartbeat", "level2", "full"])
 julia> client = GDAXWebSocketClient(ws_feed, subscription, events_handler, user = user)
 ```
-Where type of `events_handler` is a subtype of `AbstractGDAXEventsHandler`. All text messages from web socket feed are first parsed to `msg::Dict` via `JSON.json()` (as GDAX uses only jsons) and then passed to the following function
+Where type of `events_handler` is a subtype of `AbstractMessageHandler`. All text messages from web socket feed are first parsed to `msg::Dict` via `JSON.json()` (as GDAX uses only jsons) and then passed to the following function
 ```julia
 julia> onMessage(client.events_handler, msg)
 ```

@@ -4,10 +4,10 @@ using Requests
 using Nettle
 using DandelionWebSockets
 using JSON
+using FIX
 
 import Base: connect
 
-abstract type AbstractGDAXEventsHandler <: DandelionWebSockets.WebSocketHandler end
 abstract type AbstractGDAXOrder end
 
 export getProducts, getServerTime, getProductOrderBook
@@ -16,7 +16,6 @@ export getCurrencies,  getPosition, getAccounts
 export getAccountHistory, getAccountHolds
 export placeOrder, cancelOrder, cancelAll, listOrders
 
-export AbstractGDAXEventsHandler
 export GDAXUser, GDAXLimitOrder, GDAXWebSocketClient
 export connect, subscribe, unsubscribe, onMessage
 

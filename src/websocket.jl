@@ -1,7 +1,7 @@
 import DandelionWebSockets: on_text, on_binary
 export on_text, on_binary
 
-struct GDAXWebSocketClient{T <: AbstractGDAXEventsHandler} <: DandelionWebSockets.WebSocketHandler
+struct GDAXWebSocketClient{T <: AbstractMessageHandler} <: DandelionWebSockets.WebSocketHandler
     websocket_feed::String
     client::WSClient
     subscription::Dict{String, Any}
@@ -10,7 +10,7 @@ struct GDAXWebSocketClient{T <: AbstractGDAXEventsHandler} <: DandelionWebSocket
     function GDAXWebSocketClient(websocket_feed::String,
                                  subscription::Dict{String, Any},
                                  events_handler::T;
-                                 user::Union{Void, GDAXUser} = nothing) where {T <: AbstractGDAXEventsHandler}
+                                 user::Union{Void, GDAXUser} = nothing) where {T <: AbstractMessageHandler}
 
         client = WSClient()
         if user != nothing
@@ -41,12 +41,12 @@ function unsubscribe(this::GDAXWebSocketClient)
     DandelionWebSockets.send_text(this.client, JSON.json(unsubscription))
 end
 
-function onMessage(this::AbstractGDAXEventsHandler, msg::Dict{String, X}) where {X <: Any}
+function onMessage(this::AbstractMessageHandler, msg::Dict{String, X}) where {X <: Any}
     T = typeof(this)
     throw(ErrorException("Method `onMessage` is not implemented by $T"))
 end
 
-function on_text(this::T, str::String)::Void where {T <: AbstractGDAXEventsHandler}
+function on_text(this::T, str::String)::Void where {T <: AbstractMessageHandler}
 
     msg = try
         JSON.parse(str)
@@ -60,6 +60,6 @@ function on_text(this::T, str::String)::Void where {T <: AbstractGDAXEventsHandl
     return nothing
 end
 
-function on_binary(this::T, msg::Vector{UInt8}) where {T <: AbstractGDAXEventsHandler}
+function on_binary(this::T, msg::Vector{UInt8}) where {T <: AbstractMessageHandler}
     @printf("[GDAXClient] Incoming binary data (this is unexpected)")
 end

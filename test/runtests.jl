@@ -38,7 +38,7 @@ end
     @test Requests.statuscode(cancelOrder(user, string(Base.Random.uuid4()))) == 401
 end
 
-mutable struct TestEventsHandler <: AbstractGDAXEventsHandler
+mutable struct TestEventsHandler <: AbstractMessageHandler
     message_counter::Int64
 end
 
