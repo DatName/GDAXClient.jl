@@ -1,6 +1,7 @@
-# GDAXClient.jl
+# GDAXClient.jl - WIP
 
-[GDAX](https://www.gdax.com/) API client written in Julia. Implemets REST API and WebSocket feed handling (via [DandelionWebSockets.jl](https://github.com/dandeliondeathray/DandelionWebSockets.jl))
+[GDAX](https://www.gdax.com/) API client written in Julia. Implemets REST API, WebSocket feed handling and FIX API
+Websocket feed is handled via fork [DandelionWebSockets.jl](https://github.com/DatName/DandelionWebSockets.jl). NB: must use `release_1.0.0` brunch. FIX api is done through [FIX.jl](https://github.com/DatName/FIX.jl).
 
 ## Installation
 ```julia
@@ -27,10 +28,7 @@ You can see full list of exported methods with
 julia> names(GDAXClient)
 ```
 ### [Orders](https://docs.gdax.com/#orders)
-Currently only limit order type is implemeted via `GDAXLimitOrder` struct.
-```julia
-julia> order = GDAXLimitOrder("buy", "0.0001", "BTC-EUR", "14000.0", time_in_force = "GTC")
-```
+?? `placeOrder()`, `cancelAll()`
 GDAX is strict on order's price precision, so you should handle it yourself and pass value as string.
 
 You can send an order via
@@ -41,14 +39,21 @@ julia> Requests.statuscode(resp)
 ## [WebSocket feed](https://docs.gdax.com/#websocket-feed) client
 WebSocket feed client is implemented through `GDAXWebSocketClient` struct.
 ```julia
-julia> ws_feed = "wss://ws-feed.gdax.com"
 julia> subscription = Dict("type" => "subscribe",
                             "product_ids" => ["BTC-EUR", "BTC-USD"],
                             "channels" => ["heartbeat", "level2", "full"])
-julia> client = GDAXWebSocketClient(ws_feed, subscription, events_handler, user = user)
+julia> client = GDAXWebSocketClient(user, subscription, events_handler)
 ```
 Where type of `events_handler` is a subtype of `AbstractMessageHandler`. All text messages from web socket feed are first parsed to `msg::Dict` via `JSON.json()` (as GDAX uses only jsons) and then passed to the following function
 ```julia
 julia> onMessage(client.events_handler, msg)
 ```
 This function must be implemented on users' side.
+
+## [FIX API](https://docs.gdax.com/#fix-api)
+```julia
+julia> reg_user = GDAXUser("https://api.gdax.com", "wss://ws-feed.gdax.com", api_key, api_secret, passphrase)
+julia> handler = TestEventsHandler(0)
+julia> client = GDAXClient.fixconnect(reg_user, handler)
+julia> m, mstr = placeOrder(client, "buy", "BTC-EUR", 0.0001001, 10000.0)
+```
