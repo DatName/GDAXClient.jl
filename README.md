@@ -56,4 +56,5 @@ julia> reg_user = GDAXUser("https://api.gdax.com", "wss://ws-feed.gdax.com", api
 julia> handler = TestEventsHandler(0)
 julia> client = GDAXClient.fixconnect(reg_user, handler)
 julia> m, mstr = placeOrder(client, "buy", "BTC-EUR", 0.0001001, 10000.0)
+julia> cancelAll(client)
 ```
