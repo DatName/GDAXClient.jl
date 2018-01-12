@@ -7,7 +7,7 @@ function getHeaders(this::GDAXUser,
     prehash_signature = string(timestamp, uppercase(method), request_path, body_str)
     h = HMACState("sha256", base64decode(this.secret))
     Nettle.update!(h, prehash_signature)
-    signature = base64encode(digest!(h))
+    signature = base64encode(Nettle.digest!(h))
 
     return Dict("CB-ACCESS-KEY" => this.key,
                     "CB-ACCESS-SIGN" => signature,
@@ -102,25 +102,25 @@ function getReport(this::GDAXUser,
     return send_request(this, "post", request_path, json = data)
 end
 
-function marshal(this::GDAXLimitOrder)::Dict{String, Any}
-    out = Dict{String, Any}("side" => this.side,
-                            "product_id" => this.product_id,
-                            "price" => this.price,
-                            "size" => this.size)
+function placeOrder(this::GDAXUser,
+                    side::String,
+                    product_id::String,
+                    lots::Float64,
+                    price::Float64;
+                    post_only::Bool = true,
+                    stp::String = "cb",
+                    time_in_force::String = "GTC")
+    order = Dict{String, Any}("side" => side,
+                              "product_id" => product_id,
+                              "price" => string(signif(price, 6)),
+                              "size" => string(signif(lots, 8)),
+                              "post_only" => post_only,
+                              "client_oid" => string(Base.Random.uuid4()),
+                              "type" => "limit",
+                              "stp" => stp,
+                              "time_in_force" => time_in_force)
 
-    !isempty(this.stp) && (out["stp"] => this.stp)
-    !isempty(this.time_in_force) && (out["time_in_force"] = this.time_in_force)
-    !isempty(this.cancel_after) && (out["cancel_after"] = this.cancel_after)
-    this.post_only ≠ nothing && (out["post_only"] = this.post_only)
-    !isempty(this.client_oid) && (out["client_oid"] = this.client_oid)
-    !isempty(this._type) && (out["type"] = this._type)
-    !isempty(this.stp) && (out["stp"] = this.stp)
-
-    return out
-end
-
-function placeOrder(this::GDAXUser, order::T) where {T <: AbstractGDAXOrder}
-    send_request(this, "post", "/orders", json = marshal(order))
+    send_request(this, "post", "/orders", json = order)
 end
 
 function cancelOrder(this::GDAXUser, order_id::String)
