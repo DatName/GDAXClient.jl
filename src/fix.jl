@@ -1,10 +1,9 @@
 using FIX
+export logout
 
 function fixconnect(user::GDAXUser, events_handler::T) where {T <: AbstractGDAXMessageHandler}
     client = connect(user.key, events_handler)
     start(client)
-    sleep(1.0)
-
     send_message(client, login_message(user.key, user.secret, user.passphrase))
     return client
 end

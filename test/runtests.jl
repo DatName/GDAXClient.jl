@@ -60,21 +60,34 @@ end
     @test n == client.events_handler.message_counter
 end
 
-gadx_keys = JSON.parsefile(joinpath(homedir(),".gdax_keys"))
-api_key = gadx_keys["Key"]
-api_secret = gadx_keys["Secret"]
-passphrase = gadx_keys["Passphrase"]
-
-reg_user = GDAXUser("https://api.gdax.com", "wss://ws-feed.gdax.com", api_key, api_secret, passphrase)
-
 using FIX
-import FIX: onFIXMessage
 using DataStructures
+import FIX: onFIXMessage
+
 function onFIXMessage(this::TestEventsHandler, msg::OrderedDict{Int64, String})
     this.message_counter += 1
     return nothing
 end
-handler = TestEventsHandler(0)
 
-client = GDAXClient.fixconnect(reg_user, handler)
-placeOrder(client, "buy", "BTC-EUR", 0.0001001, 10000.0)
+@testset "fix orders" begin
+    gadx_keys = JSON.parsefile(joinpath(homedir(),".gdax_keys"))
+    api_key = gadx_keys["Key"]
+    api_secret = gadx_keys["Secret"]
+    passphrase = gadx_keys["Passphrase"]
+
+    reg_user = GDAXUser("https://api.gdax.com", "wss://ws-feed.gdax.com", api_key, api_secret, passphrase)
+
+    handler = TestEventsHandler(0)
+
+    client = GDAXClient.fixconnect(reg_user, handler)
+    m, mstr = placeOrder(client, "buy", "BTC-EUR", 0.0001001, 10000.0)
+    sleep(2)
+    @test !isempty(FIX.getOpenOrders(client))
+    cancelAll(client)
+    sleep(1)
+    @test isempty(FIX.getOpenOrders(client))
+    logout(client)
+    sleep(1)
+    @test !isempty(client.m_messages.incoming.logout)
+    close(client)
+end
