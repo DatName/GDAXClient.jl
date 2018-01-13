@@ -91,3 +91,15 @@ end
     @test !isempty(client.m_messages.incoming.logout)
     close(client)
 end
+
+using FIX
+using GDAXClient
+gadx_keys = JSON.parsefile(joinpath(homedir(),".gdax_keys"))
+api_key = gadx_keys["Key"]
+api_secret = gadx_keys["Secret"]
+passphrase = gadx_keys["Passphrase"]
+user = GDAXUser("https://api.gdax.com", "wss://ws-feed.gdax.com", api_key, api_secret, passphrase)
+
+client = GDAXClient.fixconnect(user)
+placeOrder(client, "buy", "BTC-EUR", 0.00010001, 10000.0)
+cancelAll(client)

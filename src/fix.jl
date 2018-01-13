@@ -1,24 +1,18 @@
 using FIX
 export logout
 
-function fixconnect(user::GDAXUser, events_handler::T) where {T <: AbstractGDAXMessageHandler}
-    client = connect(user.key, events_handler)
+function fixconnect(user::GDAXUser)
+    client = FIXClient(MbedTLS.connect("127.0.01", 4198),
+                    Dict(8=>"FIX.4.2",
+                         49=>user.key,
+                         56=>"Coinbase"))
     start(client)
     send_message(client, login_message(user.key, user.secret, user.passphrase))
     return client
 end
 
-function logout(client::FIXClient{TCPSocket, T}) where {T <: AbstractGDAXMessageHandler}
+function logout(client::FIXClient{TCPSocket, H}) where {H <: AbstractGDAXMessageHandler}
     send_message(client, logout_message())
-end
-
-function connect(api_key::String, handler::T)::FIXClient{TCPSocket, T} where {T <: AbstractGDAXMessageHandler}
-    #TODO: make sure stunnel is up
-    return FIXClient(MbedTLS.connect("127.0.01", 4198),
-                    handler,
-                    Dict(8=>"FIX.4.2",
-                         49=>api_key,
-                         56=>"Coinbase"))
 end
 
 function login_message(api_key::String, api_secret::String, passphrase::String)::Dict{Int64, String}
@@ -43,11 +37,11 @@ function logout_message()
     return Dict{Int64, String}(35=>"5")
 end
 
-function placeOrder(this::FIXClient{TCPSocket, T},
+function placeOrder(this::FIXClient{TCPSocket, H},
                         side::String,
                         instrument::String,
                         lots::Float64,
-                        price::Float64) where {T <: AbstractGDAXMessageHandler}
+                        price::Float64) where {H <: AbstractGDAXMessageHandler}
     client_order_id = string(Base.Random.uuid4())
     ord = Dict{Int64, String}(35=>"D",
                         21 => "1",
@@ -62,7 +56,7 @@ function placeOrder(this::FIXClient{TCPSocket, T},
     send_message(this, ord)
 end
 
-function cancelAll(this::FIXClient{TCPSocket, T}) where {T <: AbstractGDAXMessageHandler}
+function cancelAll(this::FIXClient{TCPSocket, H}) where {H <: AbstractGDAXMessageHandler}
     for order in FIX.getOpenOrders(this)
         c = Dict{Int64, String}()
         c[11] = string(Base.Random.uuid4())
