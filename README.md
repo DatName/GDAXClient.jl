@@ -58,3 +58,6 @@ julia> client = GDAXClient.fixconnect(reg_user, handler)
 julia> m, mstr = placeOrder(client, "buy", "BTC-EUR", 0.0001001, 10000.0)
 julia> cancelAll(client)
 ```
+
+## Example.
+See example folder for example of spread quoting.
