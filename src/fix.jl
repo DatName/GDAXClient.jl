@@ -44,6 +44,25 @@ function logout_message()
     return Dict{Int64, String}(35=>"5")
 end
 
+function placeOrder_fake(this::FIXClient{TCPSocket, H},
+                        side::String,
+                        instrument::String,
+                        lots::Float64,
+                        price::Float64) where {H <: AbstractGDAXMessageHandler}
+    id = string(Base.Random.uuid4());
+    ord = Dict{Int64, String}(35=>"D",
+                        21 => "1",
+                        11 => id,
+                        55 => instrument,
+                        54 => side,
+                        44 => string(signif(price, 6)),
+                        38 => string(signif(lots, 8)),
+                        40 => "2",
+                        59 => "1",
+                        7928 => "B")
+    FIX.send_message_fake(this, ord)
+end
+
 function placeOrder(this::FIXClient{TCPSocket, H},
                         side::String,
                         instrument::String,
