@@ -8,19 +8,20 @@ using DandelionWebSockets
 using JSON
 using FIX
 using MbedTLS
+using Reexport
 
 import Base: connect
 
 abstract type AbstractGDAXMessageHandler <: FIX.AbstractMessageHandler end
 
-export getProducts, getServerTime, getProductOrderBook
+export getProducts, getServerTime, getProductOrderBook, FIXQuote
 export getProductTicker, getProductTrades, get24HourStats, getHistoricRates
 export getCurrencies,  getPosition, getAccounts
 export getAccountHistory, getAccountHolds
 export placeOrder, cancelOrder, cancelAll, listOrders
 
-export GDAXUser, GDAXWebSocketClient
-export connect, subscribe, unsubscribe, onMessage
+export GDAXUser, GDAXWebSocketClient, GDAXOrderBooks
+export fixconnect, wsconnect, subscribe, unsubscribe, onWSMessage, onFIXMessage
 export AbstractGDAXMessageHandler
 
 struct GDAXUser
@@ -32,6 +33,9 @@ struct GDAXUser
 end
 
 isregistered(this::GDAXUser) = (!isempty(this.key) && !isempty(this.secret) && !isempty(this.passphrase))
+
+include("sloworderbook.jl")
+@reexport using .SlowOrderBook
 
 include("rest.jl")
 include("websocket.jl")
